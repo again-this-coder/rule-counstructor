@@ -1,0 +1,122 @@
+.rule-builder-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.rule-builder-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.rule-builder-section {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.rule-builder-section label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.rule-builder-section select,
+.rule-builder-section input,
+.new-filter-input {
+  width: calc(100% - 100px);
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.rule-builder-rule {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.rule-builder-rule > div {
+  flex: 1;
+}
+
+.rule-builder-rule select,
+.rule-builder-rule input {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.rule-builder-rule button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-right: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.rule-builder-rule button:hover {
+  background-color: #c82333;
+}
+
+.rule-builder-json {
+  margin-top: 20px;
+}
+
+.rule-builder-json textarea {
+  width: 100%;
+  min-height: 250px;
+  padding: 0;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.generate-json,
+.add-group {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.add-group:hover,
+.remove-group:hover {
+  background-color: #0056b3;
+}
+
+.generate-json.bg-green,
+.add-group.bg-green {
+  background-color: green;
+}
+
+.generate-json.bg-green:hover,
+.add-group.bg-green:hover {
+  background-color: darkgreen;
+}
+
+.margin-bottom {
+  margin-bottom: 20px;
+}
+
+.additional-padding {
+  margin: 20px 0;
+}
+
+.add-buttons-container {
+  flex-direction: row;
+  justify-content: space-between;
+}
