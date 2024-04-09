@@ -5,7 +5,14 @@ import "./RuleBuilder.css";
 const RuleBuilder = () => {
   const [groups, setGroups] = useState([
     {
-      rules: [{ field: "", condition: "equals", value: "" }],
+      rules: [
+        {
+          field: "",
+          condition: "equals",
+          value: "",
+          logicalOperator: undefined,
+        },
+      ],
     },
   ]);
   const [filters, setFilters] = useState(["age", "payer"]);
@@ -30,6 +37,13 @@ const RuleBuilder = () => {
     setGroups(updatedRules);
   };
 
+  const handleRuleLogicalOperatorChange = (event, groupIndex, ruleIndex) => {
+    const updatedGroups = [...groups];
+    updatedGroups[groupIndex].rules[ruleIndex].logicalOperator =
+      event.target.value;
+    setGroups(updatedGroups);
+  };
+
   const handleLogicalOperatorChange = (event, index) => {
     const updatedRules = [...groups];
     updatedRules[index].logicalOperator = event.target.value;
@@ -37,49 +51,59 @@ const RuleBuilder = () => {
   };
 
   const addRule = (index) => {
-    const updatedRules = [...groups];
-    updatedRules[index].rules.push({
+    const updatedGroups = [...groups];
+    updatedGroups[index].rules.push({
       field: "",
       condition: "equals",
       value: "",
+      logicalOperator: "AND",
     });
-    setGroups(updatedRules);
+    setGroups(updatedGroups);
   };
 
   const addGroup = () => {
-    const updatedRules = [...groups];
-    updatedRules.push({
-      rules: [{ field: "", condition: "equals", value: "" }],
+    const updatedGroups = [...groups];
+    updatedGroups.push({
+      logicalOperator: "AND",
+      rules: [
+        {
+          field: "",
+          condition: "equals",
+          value: "",
+          logicalOperator: undefined,
+        },
+      ],
     });
-    setGroups(updatedRules);
+    setGroups(updatedGroups);
   };
 
-  const removeRule = (index, groupIndex) => {
-    const updatedRules = [...groups];
-    if (groupIndex !== undefined) {
-      updatedRules[index].rules.splice(groupIndex, 1);
-    } else {
-      updatedRules.splice(index, 1);
-    }
-    setGroups(updatedRules);
+  const removeRule = (groupIndex, ruleIndex) => {
+    const updatedGroups = [...groups];
+    updatedGroups[groupIndex].rules.splice(ruleIndex, 1);
+    setGroups(updatedGroups);
+  };
+
+  const removeGroup = (groupIndex) => {
+    const updatedGroups = [...groups];
+    updatedGroups.splice(groupIndex, 1);
+    setGroups(updatedGroups);
   };
 
   const generateJSON = () => {
-    const jsonRules = groups.map((rule) => {
-      const logicalOperator =
-        rule.rules.length >= 2 ? rule.logicalOperator || "AND" : undefined;
-
-      return {
+    const jsonRules = groups.map((group, index) => {
+      const rules = group.rules.map((rule, ruleIndex) => ({
         field: rule.field,
         condition: rule.condition,
         value: rule.value,
-        logicalOperator,
-        rules: rule.rules,
+        logicalOperator: ruleIndex > 0 ? rule.logicalOperator : undefined,
+      }));
+      return {
+        logicalOperator: index > 0 ? group.logicalOperator || "AND" : undefined,
+        rules,
       };
     });
 
-    const jsonString = JSON.stringify(jsonRules, null, 2);
-    setGeneratedJSON(jsonString);
+    setGeneratedJSON(JSON.stringify(jsonRules, null, 2));
   };
 
   const handleNewFilterChange = (event) => {
@@ -108,61 +132,75 @@ const RuleBuilder = () => {
           Add Filter
         </button>
       </div>
-      {groups.map((rule, index) => (
-        <div key={index} className="rule-builder-rule">
-          <h3>Group {index + 1}</h3>
-          {rule.rules.length > 1 && (
+      {groups.map((group, groupIndex) => (
+        <div key={groupIndex} className="rule-builder-rule">
+          {groupIndex > 0 && (
             <div>
-              <h4>Logical operator for Group {index + 1}</h4>
+              <h4>Logical operator between groups</h4>
               <select
                 className="margin-bottom"
-                value={rule.logicalOperator}
-                onChange={(e) => handleLogicalOperatorChange(e, index)}
+                value={group.logicalOperator}
+                onChange={(e) => handleLogicalOperatorChange(e, groupIndex)}
               >
                 <option value="AND">AND</option>
                 <option value="OR">OR</option>
               </select>
             </div>
           )}
-
-          <div>
-            {rule.rules.map((groupRule, groupIndex) => (
-              <div key={groupIndex}>
-                <FilterSelector
-                  filters={filters}
-                  selectedFilter={groupRule.field}
-                  onChange={(e) => handleFieldChange(e, index, groupIndex)}
-                />
+          {group.rules.map((rule, ruleIndex) => (
+            <div key={ruleIndex}>
+              {ruleIndex > 0 && (
                 <select
-                  value={groupRule.condition}
-                  onChange={(e) => handleConditionChange(e, index, groupIndex)}
-                  className="additional-padding"
+                  className="logical-operator"
+                  value={rule.logicalOperator}
+                  onChange={(e) =>
+                    handleRuleLogicalOperatorChange(e, groupIndex, ruleIndex)
+                  }
                 >
-                  <option value="equals">equals</option>
-                  <option value="greaterThan">greater than</option>
+                  <option value="AND">AND</option>
+                  <option value="OR">OR</option>
                 </select>
-                <input
-                  type="text"
-                  value={groupRule.value}
-                  onChange={(e) => handleValueChange(e, index, groupIndex)}
-                />
-                <button
-                  className="remove-rule margin-bottom"
-                  onClick={() => removeRule(index, groupIndex)}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-
+              )}
+              <FilterSelector
+                filters={filters}
+                selectedFilter={rule.field}
+                onChange={(e) => handleFieldChange(e, groupIndex, ruleIndex)}
+              />
+              <select
+                value={rule.condition}
+                onChange={(e) =>
+                  handleConditionChange(e, groupIndex, ruleIndex)
+                }
+                className="additional-padding"
+              >
+                <option value="equals">equals</option>
+                <option value="greaterThan">greater than</option>
+              </select>
+              <input
+                type="text"
+                value={rule.value}
+                onChange={(e) => handleValueChange(e, groupIndex, ruleIndex)}
+              />
+              <button
+                className="remove-rule margin-bottom"
+                onClick={() => removeRule(groupIndex, ruleIndex)}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
           <div className="add-buttons-container">
-            <button className="add-rule" onClick={() => addRule(index)}>
+            <button className="add-rule" onClick={() => addRule(groupIndex)}>
               Add Rule
             </button>
-            <button className="remove-group" onClick={() => removeRule(index)}>
-              Remove Group {index + 1}
-            </button>
+            {groups.length > 1 && (
+              <button
+                className="remove-group"
+                onClick={() => removeGroup(groupIndex)}
+              >
+                Remove Group {groupIndex + 1}
+              </button>
+            )}
           </div>
         </div>
       ))}
